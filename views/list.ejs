@@ -1,2 +1,27 @@
-
+<div>
+    <% if (signatures.length > 0) { %>
+    
+        <h2>Undiskriftir</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="table__head">Dags</th>
+                    <th class="table__head">Nafn</th>
+                    <th class="table__head">Athugasemd</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% signatures.forEach((signature) => { %>
+                <tr>
+                    <td class="table__dags"><%= signature.signed %></td>
+                    <td class="table__nafn"><%= signature.anonymous ?  'Nafnlaus' : signature.name %></td>
+                    <td class="table__ath"><%= signature.comment %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+            <p>Engar undiskriftir</p>
+        <% } %>
+    </div>
 

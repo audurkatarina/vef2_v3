@@ -1,5 +1,6 @@
 import passport from 'passport';
-import { Strategy } from 'passport-local';
+import pkg from 'passport-local';
+const { Strategy } = pkg;
 
 // Hægt að útfæra passport virkni hér til að létta á app.js
 

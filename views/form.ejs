@@ -1,3 +1,32 @@
 <form method="post" action="/" enctype="application/x-www-form-urlencoded" class="form form--separated">
+    <div class="field<%= locals.isInvalid('name', errors) ?  ' field--invalid' : '' %>">
+        <label for="name">Nafn* </label>
+          <input type="text" name="name" value="<%= name %>">
+        </div>
+        <div class="field<%= locals.isInvalid('nationalId', errors) ?  ' field--invalid' : '' %>">
+        <label for="nationalId">Kennitala* </label>
+          <input type="text" name="nationalId" value="<%= nationalId %>"placeholder="000000-0000">
+        </div class="field">
+        <div class="field">
+          <label for="comment">Athugasemd: </label>
+          <textarea id="comment" name="comment" value="<%=comment %>"></textarea>
+        </div>
+        <div class="check">
+          <input type="checkbox" name="anon">
+          <label for="anon">Ekki birta nafn á lista</label>
+        </div>
+        <% if (errors.length>0) { %>
+          <h3>Villur við undirskrift:</h3>
+          <div class=errors>
+          <ul>
+              <% errors.forEach((error) => { %>
+                  <li class="error"><label for="<%= error.param %>"><%= error.msg %></label></li>
+              <% }); %>
+          </ul>
+          </div>
+      <% }%>
+      <div class="button">
+        <button>Skrifa undir</button>
+      </div>
 
 </form>

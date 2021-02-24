@@ -30,3 +30,32 @@ export async function query(_query, values = []) {
 }
 
 // TODO rest af föllum
+/**
+ * Bætir við undirskrift.
+ *
+ * @param {array} data Fylki af gögnum fyrir umsókn
+ * @returns {object} Hlut með niðurstöðu af því að keyra fyrirspurn
+ */
+export async function insert(data) {
+  const q = 'INSERT INTO signatures(name, nationalId, comment, anonymous) VALUES ($1, $2, $3, $4)';
+  const values = [data.name, data.nationalId, data.comment, data.anonymous];
+
+  return query(q, values);
+}
+
+/**
+ * Sækir allar undirskriftir
+ *
+ * @returns {array} Fylki af öllum umsóknum
+ */
+export async function select() {
+  const result = await query('SELECT * FROM signatures ORDER BY id');
+
+  return result.rows;
+}
+
+export async function deleteSignature(data) {
+  const q = 'DELETE FROM signatures WHERE nationalID=$1';
+  const values = [data.nationalId];
+  return query(q, values);
+}
