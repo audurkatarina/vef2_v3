@@ -2,6 +2,9 @@
     <% if (signatures.length > 0) { %>
     
         <h2>Undiskriftir</h2>
+        <div>
+            <p>Fjöldi undirskrifta: <%= count %></p>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -20,6 +23,12 @@
                 <% }) %>
             </tbody>
         </table>
+        
+        <div>
+            <a href="<%= links._links.prev ? links._links.prev.href : '/' %>">Fyrri síða</a>
+            <p>Síða <%= pageNumber %> af <%= pageAll %></p>
+            <a href="<%= links._links.next ? links._links.next.href : links._links.self.href %>">Næsta síða</a>
+        </div>
         <% } else { %>
             <p>Engar undiskriftir</p>
         <% } %>

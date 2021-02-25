@@ -1,7 +1,10 @@
+//import fs from 'fs';
+//import util from 'util';
 import { promises } from 'fs';
 import faker from 'faker';
 import dotenv from 'dotenv';
 import pkg from 'pg';
+//import { readFile } from 'fs/promises';
 
 const { Client } = pkg;
 
@@ -9,23 +12,34 @@ dotenv.config();
 
 const connectionString = process.env.DATABASE_URL;
 
-async function query(q) {
+const pool = new pkg.Pool({ connectionString });
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+const schemaFile = './sql/schema.sql';
+
+async function query(q, values = []) {
   const client = new Client({ connectionString });
 
   await client.connect();
 
   try {
-    const result = await client.query(q.query, q.data);
+    const result = await client.query(q, values);
 
     const { rows } = result;
     return rows;
+  } catch (err) {
+    console.error('Error running query');
+    throw err;
   } finally {
     await client.end();
   }
 }
 
-function generateSignatures() {
-  const signatures = [];
+async function generateSignatures() {
   for (let i = 0; i < 500; i += 1) {
     const name = faker.name.findName();
     const nationalId = Math.random().toString().slice(2, 12);
@@ -46,26 +60,23 @@ function generateSignatures() {
       anon,
       signed,
     ];
-    signatures.push({ query: q, data: d });
+    // eslint-disable-next-line no-await-in-loop
+    await query(q, d);
   }
-  return signatures;
 }
 
 async function main() {
-  // bæta færslum við töflu
-  try {
-    const signatures = generateSignatures();
-    signatures.map(async (signature) => {
-      try {
-        await query(signature);
-      } catch (e) {
-        console.error('Villa við að bæta gögnum við:', e.message);
-      }
-    });
-    console.info('Gögnum bætt við');
-  } catch (e) {
-    console.error('Villa við að bæta gögnum við:', e.message);
-  }
+  const data = await promises.readFile(schemaFile);
+
+  await query(data.toString('utf-8'));
+
+  console.info('Schema created');
+
+  await generateSignatures();
+
+  console.info('Mock data inserted');
+
+  await pool.end();
 }
 
 main().catch((err) => {

@@ -48,10 +48,18 @@ export async function insert(data) {
  *
  * @returns {array} Fylki af öllum umsóknum
  */
-export async function select() {
-  const result = await query('SELECT * FROM signatures ORDER BY id');
+export async function selectPaging(offset = 0, limit = 50) {
+  const q = 'SELECT * FROM signatures ORDER BY signed OFFSET $1 LIMIT $2';
+  const result = await query(q, [offset, limit]);
 
   return result.rows;
+}
+
+export async function selectCount() {
+  const q = 'SELECT COUNT(*) AS count FROM signatures';
+  const result = await query(q);
+
+  return result.rows[0].count;
 }
 
 export async function deleteSignature(data) {

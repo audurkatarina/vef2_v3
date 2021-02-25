@@ -1,11 +1,14 @@
+/* eslint-disable no-underscore-dangle */
 import express from 'express';
 import xss from 'xss';
 import pkg from 'express-validator';
-import { insert, select } from './db.js';
+import { insert, selectPaging, selectCount } from './db.js';
 
 const { check, validationResult, body } = pkg;
 
 const nationalIdPattern = '^[0-9]{6}-?[0-9]{4}$';
+
+const port = 3000;
 
 /**
  * Higher-order fall sem umlykur async middleware með villumeðhöndlun.
@@ -66,15 +69,8 @@ const sanitazions = [
   sanitizeXss('comment'),
 ];
 
-/**
- * Route handler fyrir form.
- *
- * @param {object} req Request hlutur
- * @param {object} res Response hlutur
- * @returns {string} Formi fyrir umsókn
- */
-async function form(req, res) {
-  const signatures = await select();
+async function signaturesTable(offset, limit) {
+  const signatures = await selectPaging(offset, limit);
   signatures.forEach((signature) => {
     const d = new Date(signature.signed);
     const day = (`0${d.getDate()}`).slice(-2);
@@ -83,6 +79,45 @@ async function form(req, res) {
     // eslint-disable-next-line no-param-reassign
     signature.signed = date;
   });
+  return signatures;
+}
+
+/**
+ * Route handler fyrir form.
+ *
+ * @param {object} req Request hlutur
+ * @param {object} res Response hlutur
+ * @returns {string} Formi fyrir umsókn
+ */
+async function form(req, res) {
+  let { offset = 0, limit = 10 } = req.query;
+  offset = Number(offset);
+  limit = Number(limit);
+  const signatures = await signaturesTable(offset, limit);
+
+  const links = {
+    _links: {
+      self: {
+        href: `http://localhost:${port}/?offset=${offset}&limit=${limit}`,
+      },
+    },
+  };
+
+  if (offset > 0) {
+    links._links.prev = {
+      href: `http://localhost:${port}/?offset=${offset - limit}&limit=${limit}`,
+    };
+  }
+
+  if (signatures.length <= limit) {
+    links._links.next = {
+      href: `http://localhost:${port}/?offset=${Number(offset) + limit}&limit=${limit}`,
+    };
+  }
+
+  const count = await selectCount();
+  const pageNumber = offset / 10 + 1;
+  const pageAll = count / limit;
 
   const data = {
     title: 'Undirskriftarlisti',
@@ -90,8 +125,13 @@ async function form(req, res) {
     nationalId: '',
     comment: '',
     signatures,
+    links,
     errors: [],
+    count,
+    pageAll,
+    pageNumber,
   };
+
   res.render('index', data);
 }
 
@@ -112,15 +152,7 @@ async function showErrors(req, res, next) {
       comment = '',
     } = {},
   } = req;
-  const signatures = await select();
-  signatures.forEach((signature) => {
-    const d = new Date(signature.signed);
-    const day = (`0${d.getDate()}`).slice(-2);
-    const month = (`0${d.getMonth() + 1}`).slice(-2);
-    const date = `${day}.${month}.${d.getFullYear()}`;
-    // eslint-disable-next-line no-param-reassign
-    signature.signed = date;
-  });
+  const signatures = await signaturesTable();
 
   const data = {
     name,
@@ -179,6 +211,7 @@ async function formPost(req, res) {
 }
 
 router.get('/', catchErrors(form));
+// router.get('', catchErrors(form));
 
 router.post(
   '/',
