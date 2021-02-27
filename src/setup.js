@@ -1,6 +1,10 @@
 import { promises } from 'fs';
 import faker from 'faker';
-import dotenv from 'dotenv';
+import { query, end } from './db.js';
+
+const schemaFile = './sql/schema.sql';
+
+/* import dotenv from 'dotenv';
 import pkg from 'pg';
 
 const { Client } = pkg;
@@ -22,8 +26,6 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
-const schemaFile = './sql/schema.sql';
-
 async function query(q, values = []) {
   const client = new Client({ connectionString });
 
@@ -40,7 +42,7 @@ async function query(q, values = []) {
   } finally {
     await client.end();
   }
-}
+} */
 
 async function generateSignatures() {
   for (let i = 0; i < 500; i += 1) {
@@ -82,7 +84,7 @@ async function main() {
 
   console.info('Mock data inserted');
 
-  await pool.end();
+  await end();
 }
 
 main().catch((err) => {

@@ -67,3 +67,7 @@ export async function deleteSignature(data) {
   const values = [data];
   return query(q, values);
 }
+
+export async function end() {
+  await pool.end();
+}
