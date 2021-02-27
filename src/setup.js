@@ -4,46 +4,6 @@ import { query, end } from './db.js';
 
 const schemaFile = './sql/schema.sql';
 
-/* import dotenv from 'dotenv';
-import pkg from 'pg';
-
-const { Client } = pkg;
-
-dotenv.config();
-
-const {
-  DATABASE_URL: connectionString,
-  NODE_ENV: nodeEnv = 'development',
-} = process.env;
-
-// Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
-const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
-
-const pool = new pkg.Pool({ connectionString, ssl });
-
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
-
-async function query(q, values = []) {
-  const client = new Client({ connectionString });
-
-  await client.connect();
-
-  try {
-    const result = await client.query(q, values);
-
-    const { rows } = result;
-    return rows;
-  } catch (err) {
-    console.error('Error running query');
-    throw err;
-  } finally {
-    await client.end();
-  }
-} */
-
 async function generateSignatures() {
   for (let i = 0; i < 500; i += 1) {
     const name = faker.name.findName();
