@@ -7,9 +7,15 @@ const { Client } = pkg;
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL;
+const {
+  DATABASE_URL: connectionString,
+  NODE_ENV: nodeEnv = 'development',
+} = process.env;
 
-const pool = new pkg.Pool({ connectionString });
+// Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
+const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
+
+const pool = new pkg.Pool({ connectionString, ssl });
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
