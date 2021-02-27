@@ -49,7 +49,7 @@ export async function insert(data) {
  * @returns {array} Fylki af öllum umsóknum
  */
 export async function selectPaging(offset = 0, limit = 50) {
-  const q = 'SELECT * FROM signatures ORDER BY signed OFFSET $1 LIMIT $2';
+  const q = 'SELECT * FROM signatures ORDER BY signed DESC OFFSET $1 LIMIT $2';
   const result = await query(q, [offset, limit]);
 
   return result.rows;
