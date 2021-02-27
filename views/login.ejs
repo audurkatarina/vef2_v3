@@ -2,17 +2,19 @@
 
 <h1>Innskráning</h1>
 <form method="post" action="/admin/login">
-    <div>
+    <div class="field">
       <label for="username">Notendanafn </label>
       <input type="text" name="username">
     </div>
-    <div>
+    <div class="field">
       <label for="password">Lykilorð </label>
       <input type="text" name="password">
     </div>
-    <p class="error"><%= message %></p>
+    <div class="errors">
+      <p><%= message %></p>
+    </div>
     <div class="button">
-        <button>Innskrá</button>
+      <button>Innskrá</button>
     </div>
 </form>
 

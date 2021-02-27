@@ -80,7 +80,8 @@ export async function paging(req) {
     };
   }
 
-  if (signatures.length === limit) {
+  // eslint-disable-next-line eqeqeq
+  if (signatures.length === limit && offset + limit != count) {
     links._links.next = {
       href: `${req.baseUrl}/?offset=${Number(offset) + limit}&limit=${limit}`,
     };

@@ -3,7 +3,7 @@
     
         <h2>Undiskriftir</h2>
         <div>
-            <p>Fjöldi undirskrifta: <%= count %></p>
+            <p class="counter">Fjöldi undirskrifta: <%= count %></p>
         </div>
         <table class="table">
             <thead>
@@ -12,7 +12,7 @@
                     <th class="table__head">Nafn</th>
                     <th class="table__head">Athugasemd</th>
                     <% if (user.admin) { %>
-                      <th class="table__header">Eyða</th>
+                      <th class="table__head">Eyða</th>
                     <% } %>
                 </tr>
             </thead>
@@ -26,7 +26,7 @@
                         <td class="table__delete">
                           <form method="post" action="/admin/delete">
                             <input type="hidden" name="id" value="<%= signature.id %>">
-                            <button>Eyða</button>
+                            <button class="table__button">Eyða</button>
                           </form>
                         </td>
                     <% } %>
@@ -35,10 +35,10 @@
             </tbody>
         </table>
         
-        <div>
-            <a href="<%= links._links.prev ? links._links.prev.href : '/' %>">Fyrri síða</a>
+        <div class="page">
+            <a class="page__prev" href="<%= links._links.prev ? links._links.prev.href : '/' %>">Fyrri síða</a>
             <p>Síða <%= pageNumber %> af <%= pageAll %></p>
-            <a href="<%= links._links.next ? links._links.next.href : links._links.self.href %>">Næsta síða</a>
+            <a class="page__next" href="<%= links._links.next ? links._links.next.href : links._links.self.href %>">Næsta síða</a>
         </div>
         <% } else { %>
             <p>Engar undiskriftir</p>
