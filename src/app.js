@@ -1,29 +1,33 @@
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
+/* import { join, dirname } from 'path';
+import { fileURLToPath } from 'url'; */
 import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
 import passport from './login.js';
 import { router as registrationRouter } from './registration.js';
-//import { router as adminRoute } from './admin.js';
+import { router as adminRoute } from './admin.js';
 
 dotenv.config();
 
 const {
   PORT: port = 3000,
-  //SESSION_SECRET: sessionSecret,
+  SESSION_SECRET: sessionSecret,
   DATABASE_URL: connectionString,
 } = process.env;
 
-//if (!connectionString || !sessionSecret) {
-if(!connectionString) {
+if (!connectionString || !sessionSecret) {
   console.error('Vantar gögn í env');
   process.exit(1);
 }
 
 const app = express();
+app.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  maxAge: 30 * 24 * 60 * 1000, // 30 dagar
+}));
 
 // TODO klára uppsetningu á appi
 app.set('view engine', 'ejs');
@@ -45,7 +49,11 @@ function isInvalid(field, errors) {
 
 app.locals.isInvalid = isInvalid;
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', registrationRouter);
+app.use('/admin', adminRoute);
 
 function notFoundHandler(req, res, next) { // eslint-disable-line
   res.status(404).render('error', { title: '404', error: '404 fannst ekki' });

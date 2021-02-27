@@ -11,6 +11,9 @@
                     <th class="table__head">Dags</th>
                     <th class="table__head">Nafn</th>
                     <th class="table__head">Athugasemd</th>
+                    <% if (user.admin) { %>
+                      <th class="table__header">Eyða</th>
+                    <% } %>
                 </tr>
             </thead>
             <tbody>
@@ -19,6 +22,14 @@
                     <td class="table__dags"><%= signature.signed %></td>
                     <td class="table__nafn"><%= signature.anonymous ?  'Nafnlaus' : signature.name %></td>
                     <td class="table__ath"><%= signature.comment %></td>
+                    <% if (user.admin) { %>
+                        <td class="table__delete">
+                          <form method="post" action="/admin/delete">
+                            <input type="hidden" name="id" value="<%= signature.id %>">
+                            <button>Eyða</button>
+                          </form>
+                        </td>
+                    <% } %>
                 </tr>
                 <% }) %>
             </tbody>

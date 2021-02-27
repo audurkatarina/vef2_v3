@@ -2,13 +2,12 @@
 import express from 'express';
 import xss from 'xss';
 import pkg from 'express-validator';
-import { insert, selectPaging, selectCount } from './db.js';
+import { insert } from './db.js';
+import { paging } from './utils.js';
 
 const { check, validationResult, body } = pkg;
 
 const nationalIdPattern = '^[0-9]{6}-?[0-9]{4}$';
-
-const port = 3000;
 
 /**
  * Higher-order fall sem umlykur async middleware með villumeðhöndlun.
@@ -69,55 +68,22 @@ const sanitazions = [
   sanitizeXss('comment'),
 ];
 
-async function signaturesTable(offset, limit) {
-  const signatures = await selectPaging(offset, limit);
-  signatures.forEach((signature) => {
-    const d = new Date(signature.signed);
-    const day = (`0${d.getDate()}`).slice(-2);
-    const month = (`0${d.getMonth() + 1}`).slice(-2);
-    const date = `${day}.${month}.${d.getFullYear()}`;
-    // eslint-disable-next-line no-param-reassign
-    signature.signed = date;
-  });
-  return signatures;
-}
-
 /**
- * Route handler fyrir form.
+ * Route handler fyrir form og lista.
  *
  * @param {object} req Request hlutur
  * @param {object} res Response hlutur
  * @returns {string} Formi fyrir umsókn
  */
 async function form(req, res) {
-  let { offset = 0, limit = 10 } = req.query;
-  offset = Number(offset);
-  limit = Number(limit);
-  const signatures = await signaturesTable(offset, limit);
-
-  const links = {
-    _links: {
-      self: {
-        href: `http://localhost:${port}/?offset=${offset}&limit=${limit}`,
-      },
-    },
-  };
-
-  if (offset > 0) {
-    links._links.prev = {
-      href: `http://localhost:${port}/?offset=${offset - limit}&limit=${limit}`,
-    };
-  }
-
-  if (signatures.length <= limit) {
-    links._links.next = {
-      href: `http://localhost:${port}/?offset=${Number(offset) + limit}&limit=${limit}`,
-    };
-  }
-
-  const count = await selectCount();
-  const pageNumber = offset / 10 + 1;
-  const pageAll = count / limit;
+  const {
+    signatures,
+    pageNumber,
+    pageAll,
+    count,
+    links,
+  } = await paging(req);
+  const user = [];
 
   const data = {
     title: 'Undirskriftarlisti',
@@ -130,6 +96,7 @@ async function form(req, res) {
     count,
     pageAll,
     pageNumber,
+    user,
   };
 
   res.render('index', data);
@@ -152,13 +119,25 @@ async function showErrors(req, res, next) {
       comment = '',
     } = {},
   } = req;
-  const signatures = await signaturesTable();
+  const {
+    signatures,
+    pageNumber,
+    pageAll,
+    count,
+    links,
+  } = await paging(req);
+  const user = [];
 
   const data = {
     name,
     nationalId,
     comment,
     signatures,
+    pageNumber,
+    pageAll,
+    count,
+    links,
+    user,
   };
 
   const validation = validationResult(req);
@@ -211,7 +190,6 @@ async function formPost(req, res) {
 }
 
 router.get('/', catchErrors(form));
-// router.get('', catchErrors(form));
 
 router.post(
   '/',

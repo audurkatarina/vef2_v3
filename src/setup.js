@@ -1,10 +1,7 @@
-//import fs from 'fs';
-//import util from 'util';
 import { promises } from 'fs';
 import faker from 'faker';
 import dotenv from 'dotenv';
 import pkg from 'pg';
-//import { readFile } from 'fs/promises';
 
 const { Client } = pkg;
 
@@ -51,7 +48,10 @@ async function generateSignatures() {
     if (Math.random() < 0.5) {
       anon = true;
     }
-    const signed = faker.date.between('2021-02-10', '2021-02-24');
+    const date = new Date();
+    const dateStringTo = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    const dateStringFrom = `${date.getFullYear()}-${date.getMonth()}-${Math.floor(date.getDate() - 14 * Math.random())}`;
+    const signed = faker.date.between(dateStringFrom, dateStringTo);
     const q = 'INSERT INTO signatures(name, nationalId, comment, anonymous, signed) VALUES ($1, $2, $3, $4, $5)';
     const d = [
       name,

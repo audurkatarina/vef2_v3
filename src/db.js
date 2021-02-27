@@ -63,7 +63,7 @@ export async function selectCount() {
 }
 
 export async function deleteSignature(data) {
-  const q = 'DELETE FROM signatures WHERE nationalID=$1';
-  const values = [data.nationalId];
+  const q = 'DELETE FROM signatures WHERE id=$1';
+  const values = [data];
   return query(q, values);
 }
